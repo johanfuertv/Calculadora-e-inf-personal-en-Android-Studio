@@ -1,12 +1,8 @@
 package com.example.calculadora;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.Random;
@@ -18,12 +14,14 @@ public class AgregarUsuarioActivity extends AppCompatActivity {
     private TextView tvCodigoGenerado, tvInformacionUsuario;
     private ArrayList<Usuario> listaUsuarios;
 
+    private Spinner spinnerUniversidad, spinnerCarrera;
+    private RadioGroup rgGeneroMusical, rgDeporte, rgGenero;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_agregar_usuario);
 
-        // Inicializar vistas
         etNombre = findViewById(R.id.etNombre);
         etApellido = findViewById(R.id.etApellido);
         etCorreo = findViewById(R.id.etCorreo);
@@ -36,74 +34,72 @@ public class AgregarUsuarioActivity extends AppCompatActivity {
         tvCodigoGenerado = findViewById(R.id.tvCodigoGenerado);
         tvInformacionUsuario = findViewById(R.id.tvInformacionUsuario);
 
-        // Obtener la lista de usuarios desde MainMenuActivity
-        listaUsuarios = (ArrayList<Usuario>) getIntent().getSerializableExtra("listaUsuarios");
-        if (listaUsuarios == null) {
-            listaUsuarios = new ArrayList<>();
-        }
+        spinnerUniversidad = findViewById(R.id.spinnerUniversidad);
+        spinnerCarrera = findViewById(R.id.spinnerCarrera);
+        rgGeneroMusical = findViewById(R.id.rgGeneroMusical);
+        rgDeporte = findViewById(R.id.rgDeporte); // RadioGroup para deporte
+        rgGenero = findViewById(R.id.rgGenero);
 
-        // Botón para guardar el usuario
-        btnGuardar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String nombre = etNombre.getText().toString();
-                String apellido = etApellido.getText().toString();
-                String correo = etCorreo.getText().toString();
-                String edadStr = etEdad.getText().toString();
-                String contrasena = etContrasena.getText().toString();
-                String direccion = etDireccion.getText().toString();
+        listaUsuarios = new ArrayList<>();
 
-                if (nombre.isEmpty() || apellido.isEmpty() || correo.isEmpty() || edadStr.isEmpty() || contrasena.isEmpty() || direccion.isEmpty()) {
-                    Toast.makeText(AgregarUsuarioActivity.this, "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+        btnGuardar.setOnClickListener(v -> {
+            String nombre = etNombre.getText().toString().trim();
+            String apellido = etApellido.getText().toString().trim();
+            String correo = etCorreo.getText().toString().trim();
+            String edadStr = etEdad.getText().toString().trim();
+            String contrasena = etContrasena.getText().toString().trim();
+            String direccion = etDireccion.getText().toString().trim();
 
-                int edad = Integer.parseInt(edadStr);
-                String codigo = generarCodigoAleatorio();
-
-                // Crear usuario y agregarlo a la lista
-                Usuario usuario = new Usuario(nombre, apellido, correo, edad, contrasena, direccion, codigo);
-                listaUsuarios.add(usuario);
-
-                // Mostrar el código generado
-                tvCodigoGenerado.setText("Código generado: " + codigo);
-                tvCodigoGenerado.setVisibility(View.VISIBLE);
-
-                btnGuardar.setEnabled(false);
+            if (nombre.isEmpty() || apellido.isEmpty() || correo.isEmpty() || edadStr.isEmpty() || contrasena.isEmpty() || direccion.isEmpty()) {
+                Toast.makeText(this, "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            int edad = Integer.parseInt(edadStr);
+            String codigo = generarCodigoAleatorio();
+            String universidad = spinnerUniversidad.getSelectedItem().toString();
+            String carrera = spinnerCarrera.getSelectedItem().toString();
+
+            // Obtener el género musical seleccionado
+            int selectedGeneroMusicalId = rgGeneroMusical.getCheckedRadioButtonId();
+            RadioButton selectedGeneroMusical = findViewById(selectedGeneroMusicalId);
+            String generoMusical = selectedGeneroMusical != null ? selectedGeneroMusical.getText().toString() : "No seleccionado";
+
+            // Obtener el deporte seleccionado
+            int selectedDeporteId = rgDeporte.getCheckedRadioButtonId();
+            RadioButton selectedDeporte = findViewById(selectedDeporteId);
+            String deporte = selectedDeporte != null ? selectedDeporte.getText().toString() : "No seleccionado";
+
+            // Obtener el sexo seleccionado
+            int selectedSexoId = rgGenero.getCheckedRadioButtonId();
+            RadioButton selectedSexo = findViewById(selectedSexoId);
+            String sexo = selectedSexo != null ? selectedSexo.getText().toString() : "No seleccionado";
+
+            // Crear el objeto Usuario y agregarlo a la lista
+            Usuario usuario = new Usuario(nombre, apellido, correo, edad, contrasena, direccion, codigo, universidad, carrera, generoMusical, deporte, sexo);
+            listaUsuarios.add(usuario);
+
+            // Mostrar el código generado
+            tvCodigoGenerado.setText("Código generado: " + codigo);
+            tvCodigoGenerado.setVisibility(View.VISIBLE);
         });
 
-        // Botón para buscar usuario por código
-        btnBuscar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String codigoBuscar = etCodigoBuscar.getText().toString();
-                if (codigoBuscar.isEmpty()) {
-                    Toast.makeText(AgregarUsuarioActivity.this, "Ingrese un código", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Usuario usuarioEncontrado = buscarUsuarioPorCodigo(codigoBuscar);
-                if (usuarioEncontrado != null) {
-                    tvInformacionUsuario.setText("Nombre: " + usuarioEncontrado.getNombre() + "\n" +
-                            "Apellido: " + usuarioEncontrado.getApellido() + "\n" +
-                            "Correo: " + usuarioEncontrado.getCorreo() + "\n" +
-                            "Edad: " + usuarioEncontrado.getEdad() + "\n" +
-                            "Dirección: " + usuarioEncontrado.getDireccion());
-                } else {
-                    tvInformacionUsuario.setText("Usuario no encontrado");
-                }
+        btnBuscar.setOnClickListener(v -> {
+            String codigoBuscar = etCodigoBuscar.getText().toString().trim();
+            if (codigoBuscar.isEmpty()) {
+                Toast.makeText(this, "Ingrese un código", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            Usuario usuarioEncontrado = buscarUsuarioPorCodigo(codigoBuscar);
+            tvInformacionUsuario.setText(usuarioEncontrado != null ? usuarioEncontrado.toString() : "Usuario no encontrado");
         });
     }
 
-    // Genera un código aleatorio único
     private String generarCodigoAleatorio() {
-        Random random = new Random();
-        int numeroAleatorio = random.nextInt(9000) + 1000;
-        return "USER" + numeroAleatorio;
+        return "USER" + (new Random().nextInt(9000) + 1000);
     }
 
-    // Busca un usuario por su código en la lista
     private Usuario buscarUsuarioPorCodigo(String codigo) {
         for (Usuario usuario : listaUsuarios) {
             if (usuario.getCodigo().equals(codigo)) {

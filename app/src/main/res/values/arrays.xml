@@ -1,0 +1,33 @@
+<resources>
+    <string-array name="universidad_array">
+        <item>Universidad Del Valle</item>
+        <item>Universidad de los Andes</item>
+        <item>Universidad Javeriana</item>
+        <item>Universidad del Rosario</item>
+        <item>Universidad EAFIT</item>
+    </string-array>
+
+    <string-array name="carrera_array">
+        <item>Ingeniería de Sistemas</item>
+        <item>Medicina</item>
+        <item>Derecho</item>
+        <item>Administración de Empresas</item>
+        <item>Arquitectura</item>
+    </string-array>
+
+    <string-array name="genero_musical_array">
+        <item>Rock</item>
+        <item>Pop</item>
+        <item>Reggaetón</item>
+        <item>Clásica</item>
+        <item>Jazz</item>
+    </string-array>
+
+    <string-array name="deporte_array">
+        <item>Fútbol</item>
+        <item>Baloncesto</item>
+        <item>Natación</item>
+        <item>Tenis</item>
+        <item>Ciclismo</item>
+    </string-array>
+</resources>
